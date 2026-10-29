@@ -153,7 +153,10 @@ interface BootstrapArgs
     ReleaseArgs {
   initialVersion?: string;
 }
-interface DebugConfigArgs extends GitHubArgs, ManifestArgs {}
+interface DebugConfigArgs
+  extends GitHubArgs,
+    ManifestArgs,
+    ManifestConfigArgs {}
 
 function gitHubOptions(yargs: yargs.Argv): yargs.Argv {
   return yargs
@@ -582,7 +585,8 @@ const createReleaseCommand: yargs.CommandModule<{}, CreateReleaseArgs> = {
         targetBranch,
         argv.configFile,
         argv.manifestFile,
-        manifestOptions
+        manifestOptions,
+        argv.path
       );
     }
 
@@ -803,7 +807,8 @@ const debugConfigCommand: yargs.CommandModule<{}, DebugConfigArgs> = {
       targetBranch,
       argv.configFile,
       argv.manifestFile,
-      manifestOptions
+      manifestOptions,
+      argv.path
     );
     console.log(manifest);
   },

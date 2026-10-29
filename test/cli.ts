@@ -1202,7 +1202,8 @@ describe('CLI', () => {
           'main',
           DEFAULT_RELEASE_PLEASE_CONFIG,
           DEFAULT_RELEASE_PLEASE_MANIFEST,
-          sinon.match.any
+          sinon.match.any,
+          undefined
         );
         sinon.assert.calledOnce(createReleasesStub);
       });
@@ -1225,7 +1226,25 @@ describe('CLI', () => {
           'main',
           'foo.json',
           '.bar.json',
-          sinon.match.any
+          sinon.match.any,
+          undefined
+        );
+        sinon.assert.calledOnce(createReleasesStub);
+      });
+
+      it('handles --path', async () => {
+        await parser.parseAsync(
+          'github-release --repo-url=googleapis/release-please-cli --path=submodule'
+        );
+
+        sinon.assert.calledOnceWithExactly(
+          fromManifestStub,
+          fakeGitHub,
+          'main',
+          DEFAULT_RELEASE_PLEASE_CONFIG,
+          DEFAULT_RELEASE_PLEASE_MANIFEST,
+          sinon.match.any,
+          'submodule'
         );
         sinon.assert.calledOnce(createReleasesStub);
       });
@@ -1248,7 +1267,8 @@ describe('CLI', () => {
             '1.x',
             DEFAULT_RELEASE_PLEASE_CONFIG,
             DEFAULT_RELEASE_PLEASE_MANIFEST,
-            sinon.match.any
+            sinon.match.any,
+            undefined
           );
           sinon.assert.calledOnce(createReleasesStub);
         });
@@ -1276,7 +1296,8 @@ describe('CLI', () => {
           'main',
           DEFAULT_RELEASE_PLEASE_CONFIG,
           DEFAULT_RELEASE_PLEASE_MANIFEST,
-          sinon.match.any
+          sinon.match.any,
+          undefined
         );
         sinon.assert.calledOnce(buildReleasesStub);
       });
@@ -1299,7 +1320,11 @@ describe('CLI', () => {
           'main',
           DEFAULT_RELEASE_PLEASE_CONFIG,
           DEFAULT_RELEASE_PLEASE_MANIFEST,
-          sinon.match({labels: ['foo', 'bar'], releaseLabels: ['asdf', 'qwer']})
+          sinon.match({
+            labels: ['foo', 'bar'],
+            releaseLabels: ['asdf', 'qwer'],
+          }),
+          undefined
         );
         sinon.assert.calledOnce(createReleasesStub);
       });
@@ -1322,7 +1347,8 @@ describe('CLI', () => {
           'main',
           DEFAULT_RELEASE_PLEASE_CONFIG,
           DEFAULT_RELEASE_PLEASE_MANIFEST,
-          sinon.match({draft: true})
+          sinon.match({draft: true}),
+          undefined
         );
         sinon.assert.calledOnce(createReleasesStub);
       });

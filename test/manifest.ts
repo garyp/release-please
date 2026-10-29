@@ -5116,6 +5116,80 @@ describe('Manifest', () => {
       expect(releases[0].prerelease).to.be.undefined;
     });
 
+    it("should not build a release for another package's merged PR", async () => {
+      // A run scoped with --path gets a manifest config holding only that package. A merged
+      // release PR of another package must not be picked up: the scoped run would tag a release
+      // it does not own and race the owning run over the pull request labels.
+      mockPullRequests(
+        github,
+        [],
+        [
+          {
+            headBranchName: 'release-please--branches--main--components--b',
+            baseBranchName: 'main',
+            number: 1234,
+            title: 'chore(main): release 1.0.1',
+            body: pullRequestBody('release-notes/single.txt'),
+            labels: ['autorelease: pending'],
+            files: [],
+            sha: 'abc123',
+          },
+        ]
+      );
+
+      const manifest = new Manifest(
+        github,
+        'main',
+        {
+          'pkg/c': {
+            releaseType: 'simple',
+            component: 'c',
+          },
+        },
+        {
+          'pkg/c': Version.parse('1.0.0'),
+        }
+      );
+      expect(await manifest.buildReleases()).lengthOf(0);
+    });
+
+    it('should build a release for the package the manifest is scoped to', async () => {
+      mockPullRequests(
+        github,
+        [],
+        [
+          {
+            headBranchName: 'release-please--branches--main--components--b',
+            baseBranchName: 'main',
+            number: 1234,
+            title: 'chore(main): release 1.0.1',
+            body: pullRequestBody('release-notes/single.txt'),
+            labels: ['autorelease: pending'],
+            files: [],
+            sha: 'abc123',
+          },
+        ]
+      );
+
+      const manifest = new Manifest(
+        github,
+        'main',
+        {
+          'pkg/b': {
+            releaseType: 'simple',
+            component: 'b',
+          },
+        },
+        {
+          'pkg/b': Version.parse('1.0.0'),
+        }
+      );
+      const releases = await manifest.buildReleases();
+      expect(releases).lengthOf(1);
+      expect(releases[0].tag.toString()).to.eql('b-v1.0.1');
+      expect(releases[0].path).to.eql('pkg/b');
+    });
+
     it('should allow skipping releases', async () => {
       mockPullRequests(
         github,
